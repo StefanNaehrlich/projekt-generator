@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sozialgenial Projektideen-Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/showdown/2.1.0/showdown.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .prose h3 {
+            font-size: 1.25rem; /* 20px */
+            line-height: 1.75rem; /* 28px */
+            font-weight: 600;
+            margin-top: 1.5em;
+            margin-bottom: 0.5em;
+        }
+        .prose ul {
+            list-style-type: disc;
+            padding-left: 1.5em;
+        }
+        .prose li {
+            margin-top: 0.25em;
+            margin-bottom: 0.25em;
+        }
+        /* Ladeanimation */
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 flex items-center justify-center min-h-screen p-4">
+
+    <div class="w-full max-w-2xl bg-white rounded-xl shadow-lg p-6 md:p-8">
+        <div class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">sozialgenial Projektideen-Generator</h1>
+            <p class="text-gray-600 mt-2">Wählen Sie Ihre Kriterien, um eine passende Projektidee für Unterricht und Engagement zu entwickeln.</p>
+        </div>
+
+        <!-- Eingabebereich -->
+        <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="bundesland" class="block text-sm font-medium text-gray-700 mb-2">Bundesland:</label>
+                <select id="bundesland" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    <option value="">Bitte wählen...</option>
+                    <option value="Baden-Württemberg">Baden-Württemberg</option>
+                    <option value="Bayern">Bayern</option>
+                    <option value="Berlin">Berlin</option>
+                    <option value="Brandenburg">Brandenburg</option>
+                    <option value="Bremen">Bremen</option>
+                    <option value="Hamburg">Hamburg</option>
+                    <option value="Hessen">Hessen</option>
+                    <option value="Mecklenburg-Vorpommern">Mecklenburg-Vorpommern</option>
+                    <option value="Niedersachsen">Niedersachsen</option>
+                    <option value="Nordrhein-Westfalen">Nordrhein-Westfalen</option>
+                    <option value="Rheinland-Pfalz">Rheinland-Pfalz</option>
+                    <option value="Saarland">Saarland</option>
+                    <option value="Sachsen">Sachsen</option>
+                    <option value="Sachsen-Anhalt">Sachsen-Anhalt</option>
+                    <option value="Schleswig-Holstein">Schleswig-Holstein</option>
+                    <option value="Thüringen">Thüringen</option>
+                </select>
+            </div>
+            <div>
+                <label for="schulform" class="block text-sm font-medium text-gray-700 mb-2">Schulform:</label>
+                <select id="schulform" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    <option value="">Bitte wählen...</option>
+                    <option value="Gymnasium">Gymnasium</option>
+                    <option value="Realschule">Realschule</option>
+                    <option value="Hauptschule">Hauptschule</option>
+                    <option value="Gesamtschule">Gesamtschule</option>
+                    <option value="Gemeinschaftsschule">Gemeinschaftsschule</option>
+                    <option value="Berufsschule">Berufsschule</option>
+                    <option value="Förderschule">Förderschule</option>
+                </select>
+            </div>
+            <div>
+                <label for="jahrgangsstufe" class="block text-sm font-medium text-gray-700 mb-2">Jahrgangsstufe:</label>
+                <select id="jahrgangsstufe" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition">
+                    <option value="">Bitte wählen...</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                    <option value="11">11</option>
+                    <option value="12">12</option>
+                    <option value="13">13</option>
+                </select>
+            </div>
+            <div>
+                <label for="fach" class="block text-sm font-medium text-gray-700 mb-2">Fach:</label>
+                <select id="fach" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" disabled>
+                    <option value="">Erst Schulform wählen...</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mb-6">
+            <label for="hinweise" class="block text-sm font-medium text-gray-700 mb-2">Zusätzliche Hinweise (optional):</label>
+            <textarea id="hinweise" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="z.B. spezifische Themen, gewünschte Partner, Inklusionsaspekte..."></textarea>
+        </div>
+
+        <div class="text-center">
+            <button id="generateButton" class="bg-blue-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-transform transform hover:scale-105 active:scale-95 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                Projektidee generieren
+            </button>
+        </div>
+
+        <!-- Ausgabebereich -->
+        <div id="responseContainer" class="mt-8 p-6 bg-gray-50 rounded-lg border border-gray-200 min-h-[100px] prose max-w-none">
+            <div id="loadingIndicator" class="hidden justify-center items-center">
+                <div class="loader"></div>
+                <p class="ml-4 text-gray-600">Antwort wird generiert...</p>
+            </div>
+            <div id="apiResponse" class="text-gray-800"></div>
+        </div>
+        
+        <!-- Feedbackbereich -->
+        <div id="feedbackContainer" class="hidden mt-6 pt-6 border-t border-gray-200">
+             <h3 class="text-lg font-semibold text-gray-800 mb-3">Projektidee verbessern?</h3>
+             <p class="text-gray-600 mb-4">Geben Sie hier Ihr Feedback ein, um den Vorschlag anzupassen.</p>
+             <textarea id="feedbackInput" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition" placeholder="z.B. 'Der Partner passt nicht, bitte einen Sportverein vorschlagen.' oder 'Das Thema ist zu komplex, bitte vereinfachen.'"></textarea>
+             <div class="text-center mt-4">
+                <button id="improveButton" class="bg-green-600 text-white font-semibold py-2 px-6 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-transform transform hover:scale-105 active:scale-95">
+                    Idee verbessern
+                </button>
+             </div>
+        </div>
+
+        <!-- Fehlermeldung -->
+         <div id="error-message" class="hidden mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            <p><strong>Fehler:</strong> <span id="error-text"></span></p>
+         </div>
+    </div>
+
+    <script>
+        const generateButton = document.getElementById('generateButton');
+        const improveButton = document.getElementById('improveButton');
+        
+        const bundeslandSelect = document.getElementById('bundesland');
+        const schulformSelect = document.getElementById('schulform');
+        const jahrgangsstufeSelect = document.getElementById('jahrgangsstufe');
+        const fachSelect = document.getElementById('fach');
+        const hinweiseInput = document.getElementById('hinweise');
+        const feedbackInput = document.getElementById('feedbackInput');
+        
+        const apiResponse = document.getElementById('apiResponse');
+        const responseContainer = document.getElementById('responseContainer');
+        const feedbackContainer = document.getElementById('feedbackContainer');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        
+        const converter = new showdown.Converter({ simplifiedAutoLink: true });
+
+        let existingIdea = null;
+        let originalCriteria = {};
+
+        const subjectsBySchool = {
+            'Gymnasium': ['Deutsch', 'Englisch', 'Mathematik', 'Physik', 'Chemie', 'Biologie', 'Geschichte', 'Politik/Wirtschaft', 'Erdkunde', 'Kunst', 'Musik', 'Sport', 'Religion/Ethik', 'Latein', 'Französisch', 'Spanisch', 'Informatik'],
+            'Realschule': ['Deutsch', 'Englisch', 'Mathematik', 'Physik', 'Chemie', 'Biologie', 'Geschichte', 'Sozialkunde', 'Erdkunde', 'Wirtschaft', 'Kunst', 'Musik', 'Sport', 'Religion/Ethik'],
+            'Hauptschule': ['Deutsch', 'Englisch', 'Mathematik', 'Physik/Chemie/Biologie (PCB)', 'Geschichte/Sozialkunde/Erdkunde (GSE)', 'Arbeit/Wirtschaft/Technik (AWT)', 'Kunst', 'Musik', 'Sport', 'Religion/Ethik'],
+            'Gesamtschule': ['Deutsch', 'Englisch', 'Mathematik', 'Naturwissenschaften', 'Gesellschaftslehre', 'Wirtschaftslehre', 'Kunst', 'Musik', 'Sport', 'Religion/Ethik', 'Spanisch', 'Französisch', 'Technik'],
+            'Gemeinschaftsschule': ['Deutsch', 'Englisch', 'Mathematik', 'Naturwissenschaften', 'Gesellschaftswissenschaften', 'Wirtschaft-Arbeit-Technik', 'Kunst', 'Musik', 'Sport', 'Religion/Ethik'],
+            'Berufsschule': ['Deutsch', 'Sozialkunde', 'Wirtschaftslehre', 'Fachlehre (spezifisch)', 'Englisch', 'Sport', 'Religion/Ethik'],
+            'Förderschule': ['Deutsch', 'Mathematik', 'Sachunterricht', 'Lebenspraktische Fähigkeiten', 'Kunst', 'Musik', 'Sport']
+        };
+
+        schulformSelect.addEventListener('change', () => {
+            const selectedSchool = schulformSelect.value;
+            fachSelect.innerHTML = '<option value="">Bitte wählen...</option>';
+            
+            if (selectedSchool && subjectsBySchool[selectedSchool]) {
+                subjectsBySchool[selectedSchool].forEach(subject => {
+                    const option = document.createElement('option');
+                    option.value = subject;
+                    option.textContent = subject;
+                    fachSelect.appendChild(option);
+                });
+                fachSelect.disabled = false;
+            } else {
+                fachSelect.innerHTML = '<option value="">Erst Schulform wählen...</option>';
+                fachSelect.disabled = true;
+            }
+        });
+
+        generateButton.addEventListener('click', () => callBackendAPI(false));
+        improveButton.addEventListener('click', () => callBackendAPI(true));
+
+        async function callBackendAPI(isImprovement) {
+            let userQuery;
+            let systemPrompt;
+
+            if (isImprovement) {
+                const feedback = feedbackInput.value;
+                if (!feedback) {
+                    showError("Bitte geben Sie Ihr Feedback in das Textfeld ein.");
+                    return;
+                }
+                if (!existingIdea) {
+                    showError("Es gibt keine existierende Idee zum Verbessern. Bitte generieren Sie zuerst eine Idee.");
+                    return;
+                }
+
+                systemPrompt = `Du bist ein Experte für die "sozialgenial"-Initiative in Deutschland. Deine Aufgabe ist es, eine bestehende Projektidee basierend auf dem Feedback einer Lehrkraft zu überarbeiten. Halte dich an die ursprüngliche Markdown-Struktur. Antworte ausschließlich mit der verbesserten, vollständigen Projektidee.`;
+                userQuery = `
+Hier ist die ursprüngliche Projektidee, die du überarbeiten sollst:
+---
+${existingIdea}
+---
+
+Das war die ursprüngliche Anfrage der Lehrkraft:
+- Bundesland: ${originalCriteria.bundesland}
+- Schulform: ${originalCriteria.schulform}
+- Jahrgangsstufe: ${originalCriteria.jahrgangsstufe}
+- Unterrichtsfach: ${originalCriteria.fach}
+${originalCriteria.hinweise ? `- Weitere Hinweise: ${originalCriteria.hinweise}` : ''}
+---
+
+Hier ist das neue Feedback zur Verbesserung:
+"${feedback}"
+---
+
+Bitte generiere jetzt die verbesserte Projektidee.
+`;
+
+            } else {
+                originalCriteria = {
+                    bundesland: bundeslandSelect.value,
+                    schulform: schulformSelect.value,
+                    jahrgangsstufe: jahrgangsstufeSelect.value,
+                    fach: fachSelect.value,
+                    hinweise: hinweiseInput.value
+                };
+
+                if (!originalCriteria.bundesland || !originalCriteria.schulform || !originalCriteria.jahrgangsstufe || !originalCriteria.fach) {
+                    showError("Bitte füllen Sie alle vier Felder aus.");
+                    return;
+                }
+                
+                feedbackContainer.classList.add('hidden');
+                existingIdea = null;
+
+                userQuery = `
+- Bundesland: ${originalCriteria.bundesland}
+- Schulform: ${originalCriteria.schulform}
+- Jahrgangsstufe: ${originalCriteria.jahrgangsstufe}
+- Unterrichtsfach: ${originalCriteria.fach}
+${originalCriteria.hinweise ? `- Weitere Hinweise: ${originalCriteria.hinweise}` : ''}
+`;
+                systemPrompt = `Du bist ein Experte für die "sozialgenial"-Initiative in Deutschland. Deine Aufgabe ist es, passende Projektideen für Lehrkräfte zu finden oder zu erstellen.
+
+**Dein Vorgehen in zwei Schritten:**
+
+**Schritt 1: Suche nach einem existierenden Projekt.**
+- Führe eine Suche AUSSCHLIESSLICH auf der Webseite \`www.aktive-buergerschaft.de\` durch.
+- Suche nach realen "sozialgenial"-Praxisbeispielen, die zu den Kriterien der Lehrkraft passen.
+- Wenn du ein sehr gut passendes, reales Projekt findest, antworte NUR mit folgendem Markdown:
+\`\`\`markdown
+### Existierendes Projekt gefunden
+Wir haben ein passendes Praxisbeispiel in der sozialgenial-Datenbank gefunden, das als Inspiration dienen kann:
+
+[Titel des gefundenen Projekts](exakter Link zum Projekt)
+
+Schauen Sie sich dieses Projekt an. Wenn es nicht ganz passt, können Sie unten Feedback geben, um eine neue, maßgeschneiderte Idee zu entwickeln.
+\`\`\`
+
+**Schritt 2: Wenn kein passendes Projekt gefunden wurde, erstelle eine neue Idee.**
+- Wenn deine Suche erfolglos war, beginne deine Antwort mit der Überschrift: \`### Kein passendes Projekt gefunden – hier ist eine neue Idee:\`
+- Entwickle DANACH einen neuen, detaillierten Vorschlag gemäß der folgenden Struktur.
+- Formatiere deine Antwort in Markdown (z.B. ### für Überschriften, - für Listenpunkte).
+
+---
+**Struktur für neue Ideen:**
+
+### Titel
+[Ein kurzer, kreativer Titel für das neue Projekt]
+
+### Projektbeschreibung
+[Eine ansprechende Zusammenfassung des Projekts in 2-4 Sätzen.]
+
+### Verbindung zum Unterrichtsfach
+[Detaillierte Erklärung, wie das Projekt zum Unterrichtsfach passt.]
+
+### Pädagogische Lernziele
+[Liste mit 3-5 konkreten Lernzielen/Kompetenzen als Aufzählungspunkte.]
+
+### Gesellschaftliche Relevanz
+[Erklärung, warum das Projekt gesellschaftlich relevant ist und zu welchem Handlungsfeld nach Stiftung Aktive Bürgerschaft/UN-Nachhaltigkeitsziele SDG es beiträgt.]
+
+### Gemeinnütziges Engagement
+[Beschreibung des konkreten praktischen Engagements der Schülerinnen und Schüler.]
+
+### Möglicher Kooperationspartner
+[Vorschlag für einen gemeinnütziges Partner.]
+
+### Projektschritte in 4 Phasen
+- **1. Ideensuche und Recherche:** [Beschreibung]
+- **2. Umsetzung und Verknüpfung mit Unterrichtsinhalten:** [Beschreibung]
+- **3. Reflexion und Evaluation:** [Beschreibung]
+- **4. Anerkennung und Wertschätzung:** [Beschreibung]
+
+### Link zum Rahmenlehrplan
+[Gib hier den Link im Markdown-Format an, z.B.: [LehrplanPLUS Bayern](https://www.lehrplanplus.bayern.de)]
+
+### Link zu sozialgenial-Praxishilfen
+[Füge hier IMMER diesen Link im Markdown-Format ein: [sozialgenial Praxishilfen](https://www.so-geht-sozialgenial.de)]
+
+---
+Antworte IMMER NUR mit dem Ergebnis von Schritt 1 ODER Schritt 2. Kein zusätzlicher einleitender Text.`;
+            }
+
+            showLoading(true);
+            
+            // This URL points to the serverless function on Vercel
+            const backendApiUrl = `/api/generate`;
+            
+            const payload = {
+                contents: [{ parts: [{ text: userQuery }] }],
+                systemInstruction: {
+                    parts: [{ text: systemPrompt }]
+                },
+            };
+
+            if (!isImprovement) {
+                payload.tools = [{ "google_search": {} }];
+            }
+
+            try {
+                const response = await fetch(backendApiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    let errorMsg = `Serverfehler: ${response.status}`;
+                    try {
+                        const errorData = await response.json();
+                        errorMsg = errorData.error || `Ein unerwarteter Serverfehler ist aufgetreten.`;
+                    } catch (e) {
+                         errorMsg = `Der Server hat eine unerwartete Antwort gesendet (Status: ${response.status}). Dies deutet auf ein Konfigurationsproblem auf dem Server hin.`;
+                    }
+                    throw new Error(errorMsg);
+                }
+
+                const result = await response.json();
+                
+                if (result.text) {
+                    const generatedText = result.text;
+                    existingIdea = generatedText;
+                    const html = converter.makeHtml(generatedText);
+                    apiResponse.innerHTML = html;
+                    feedbackContainer.classList.remove('hidden');
+                    feedbackInput.value = '';
+                } else {
+                   throw new Error("Kein Inhalt in der API-Antwort vom Server gefunden.");
+                }
+
+            } catch (error) {
+                console.error("Fehler bei der Anfrage an den Backend-Server:", error);
+                showError(error.message);
+                feedbackContainer.classList.add('hidden');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function showLoading(isLoading) {
+            const buttons = [generateButton, improveButton];
+            if (isLoading) {
+                buttons.forEach(btn => {
+                    btn.disabled = true;
+                    if(btn.id === 'generateButton') btn.textContent = 'Generiere...';
+                });
+                loadingIndicator.style.display = 'flex';
+                apiResponse.innerHTML = '';
+                errorMessage.classList.add('hidden');
+            } else {
+                 buttons.forEach(btn => {
+                    btn.disabled = false;
+                    if(btn.id === 'generateButton') btn.textContent = 'Projektidee generieren';
+                });
+                loadingIndicator.style.display = 'none';
+            }
+        }
+        
+        function showError(message) {
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden');
+            apiResponse.innerHTML = '';
+        }
+    </script>
+</body>
+</html>
