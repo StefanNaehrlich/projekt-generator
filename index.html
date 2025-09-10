@@ -337,7 +337,9 @@ Antworte IMMER NUR mit dem Ergebnis von Schritt 1 ODER Schritt 2. Kein zusätzli
             };
 
             if (!isImprovement) {
-                payload.tools = [{ "google_search": {} }];
+                // *** HIER IST DIE KORREKTUR ***
+                // Der Befehl wurde von 'google_search' auf 'google_search_retrieval' aktualisiert.
+                payload.tools = [{ "google_search_retrieval": {} }];
             }
 
             try {
